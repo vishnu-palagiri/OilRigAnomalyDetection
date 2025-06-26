@@ -40,6 +40,15 @@ column_strategies = {
     'AnomalyType':      {'impute': None, 'denoise': False, 'scale': False}
 }
 
+anomaly_colors = {
+    'TubingBlockage': '#FF6384',      
+    'ChokeErosion': '#FFCE56',        
+    'LiquidLoading': '#36A2EB',       
+    'TubingCollapse': '#4BC0C0',      
+    'OverHeating': '#FF9F40',         
+    'SandProduction': '#9966FF'
+}
+
 st.set_page_config(page_title="ML App", layout="wide")
 st.subheader("Anomaly Detection in Oil Rig Operations")
 
@@ -123,14 +132,6 @@ with visualization_tab:
     st.subheader("📈 Visualize Sensor Data with Anomalies")
     
     st.markdown("### Toggle Anomalies")
-    anomaly_colors = {
-        'TubingBlockage': '#FF6384',      
-        'ChokeErosion': '#FFCE56',        
-        'LiquidLoading': '#36A2EB',       
-        'TubingCollapse': '#4BC0C0',      
-        'OverHeating': '#FF9F40',         
-        'SandProduction': '#9966FF'
-    }
     selected_anomalies = []
     cols = st.columns(len(anomaly_colors))
 
@@ -248,7 +249,17 @@ with model_inference:
 with summary_tab:
     st.header("📋 Summarize Predictions")
 
-    fig, df = get_model_summarizing_plot()
+    # Toggle for vrect trace visibility
+    show_vrect = st.checkbox("Show Anomaly Labels", value=False)
+
+    fig, df = get_model_summarizing_plot(anomaly_colors)
+
+    # Update vrect trace visibility
+    if 'shapes' in fig.layout:
+        for shape in fig.layout.shapes:
+            if shape.type == 'rect':
+                shape.visible = show_vrect
+
 
     selected = plotly_events(fig, select_event=True)
 

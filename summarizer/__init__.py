@@ -1,19 +1,20 @@
-from transformers import AutoTokenizer, pipeline, AutoModelForCausalLM
+from transformers import AutoTokenizer, pipeline, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 from ast import literal_eval
 from itertools import chain
 
-model_id = "microsoft/phi-1_5"
+model_id = "google/flan-t5-small"
 
 # Load tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
+model = AutoModelForSeq2SeqLM.from_pretrained(
     model_id,
     device_map="auto",
     offload_folder=f"summarizer/offload/{model_id}"
 )
 
 # Text generation pipeline
-generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
+# generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
+generator = pipeline("summarization", model=model, tokenizer=tokenizer)
 
 
 def summarize_predictions(df):
@@ -66,4 +67,4 @@ def summarize_predictions(df):
 
     print(response)
 
-    return response[0]['generated_text']
+    return response[0][list(response[0].keys())[0]]
