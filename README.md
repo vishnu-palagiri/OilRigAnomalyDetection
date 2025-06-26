@@ -20,7 +20,7 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
   Matches detected anomalies against embedded engineer maintenance logs using **cosine similarity**.
 
 - 📜 **LLM-Based Anomaly Summarization**  
-  Text summaries of anomalous episodes using Microsoft's `phi-1_5` model with dynamically constructed prompts.
+  Text summaries of anomalous episodes using Google's `flan-t5-small` model with dynamically constructed prompts.
 
 - 📊 **Visual Analytics Dashboard (Streamlit)**  
   Multi-tabbed layout for simulation, visualization, inference, and summary reporting.
@@ -45,7 +45,7 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
 |  |- continuous_modeller.py     # LSTM Autoencoder model and trainer
 |  |- embed.py                   # Embedding extractor & cosine similarity matcher
 |- summarizer/
-|  |- __init__.py                # LLM-based summarizer using Microsoft’s Phi-1_5
+|  |- __init__.py                # LLM-based summarizer using Google's flan-t5-small
 |- requirements.txt              # Python dependencies
 ```
 
@@ -96,7 +96,7 @@ All are injected with optional operator maintenance notes and observations gener
 
 ## 🧠 LLM Summarization Example
 
-Uses `microsoft/phi-1_5` to generate concise insights like:
+Uses `google/flan-t5-small` to generate concise insights like:
 
 > “Flow rate dropped gradually with rising tubing pressure. Signs suggest a tubing blockage potentially due to wax deposition.”
 
