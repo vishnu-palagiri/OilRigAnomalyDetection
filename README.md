@@ -111,7 +111,7 @@ Used to generate synthetic data with a wide range of configuration parameters.
 </details>
 
 <p align="center">
-  <img src="img/syntheticdatageneration.png" alt="Synthetic Data Generation Tab" width="600"/>
+  <img src="img/syntheticdatageneration.png" alt="Synthetic Data Generation Tab" width="80%"/>
 </p>
 
 
@@ -126,7 +126,7 @@ Each anomaly type comes with its own toggle, allowing fine-grained control over 
 - 🎯 **Anomaly Context**: Highlighted periods correspond to time spans where anomalies were synthetically injected, aiding correlation and interpretability.
 
 <p align="center">
-  <img src="img/datavisualizer.png" alt="Data Visualization Tab" width="600"/>
+  <img src="img/datavisualizer.png" alt="Data Visualization Tab" width="80%"/>
 </p>
 
 ### 🧠 Model Inference
@@ -167,7 +167,7 @@ Model inference configuration allows you to fine-tune preprocessing steps and an
 </details>
 
 <p align="center">
-  <img src="img/modelinference.png" alt="Model Inference Tab" width="600"/>
+  <img src="img/modelinference.png" alt="Model Inference Tab" width="80%"/>
 </p>
 
 ### 📋 Summarize Predictions 
@@ -180,10 +180,10 @@ Explore model predictions overlaid on sensor data in a time series view.
 - 🔎 **Semantic Log Extraction**: Relevant logs are semantically ranked based on anomaly context and summarized accordingly.
 - 📌 **Summary Output**: Generated summaries are displayed at the bottom of the tab for easy review and analysis.
 
-<div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="img/summarizer.png" alt="Model Summarizer Tab" width="47%"/>
-  <img src="img/summarizer-1.png" alt="Model Summarizer Tab 1" width="47%"/>
-</div>
+<p align="center">
+  <img src="img/summarizer.png" alt="Model Summarizer Tab" width="80%"/>
+  <img src="img/summarizer-1.png" alt="Model Summarizer Tab 1" width="80%"/>
+</p>
 
 ---
 
