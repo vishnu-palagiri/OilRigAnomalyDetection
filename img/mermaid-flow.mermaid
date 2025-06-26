@@ -1,0 +1,55 @@
+flowchart TB
+    %% User node (outside all subgraphs)
+    U[👤 User]
+
+    %% 📦 Synthetic Data Generation Component
+    subgraph SDC [📦 Synthetic Data Generation]
+        direction TB
+        style SDC fill:#f5e9ff,stroke:#ab47bc,stroke-width:2px
+        A[🛠️ Update Config] --> B[🧪 Generate Synthetic Data]
+        B --> C[📁 __init__.py]
+        C --> D1[🔧 data_simulator.py to simulate oil well data]
+        D1 --> D[🔧 data_corruptor.py to add noise and missing data]
+        D --> E[🚨 anomaly_injector.py to add anomalies and create logs]
+        E --> F[store data]
+        E --> B
+    end
+
+    %% 🧠 Model Inference Component
+    subgraph MIC [🧠 Model Inference]
+        direction TB
+        style MIC fill:#f5e9ff,stroke:#ab47bc,stroke-width:2px
+        
+        G[⚙️ Update Model Config]
+        F --> H
+        G --> H[🚀 Submit Run]
+        H --> I[📁 init.py]
+        I --> J1[🧹 Preprocessing by remoing noise, imputing nulls and scaling the data]
+        J1 --> J2[📍 Point Anomaly - zscore & Isolation Forest]
+        J1 --> J3[📈 Continuous Anomaly - LSTM Auto Encoder]
+        J2 --> J4[🧬 Embedding & Matching]
+        J3 --> J4[🧬 Embedding & Matching]
+        J4 --> H
+        J4 --> G1[Predicted Data]
+    end
+
+    %% 📋 Summarization Component
+    subgraph SC [📋 Summarization]
+        direction TB
+        style SC fill:#f5e9ff,stroke:#ab47bc,stroke-width:2px
+        G1 --> L[🎯 Lasso Select]
+        L --> M[📝 Hit Summarize]
+        M --> N[🧠 summarize_predictions using language models]
+        N --> O[📄 Show Summary]
+    end
+
+    %% External flow links
+    U --> A
+    U --> G
+    U --> L
+    O --> U
+
+    %% Highlight selected nodes
+    style B fill:#e8f7ff,stroke:#0094c6,stroke-width:2px
+    style H fill:#fff2cc,stroke:#e6a400,stroke-width:2px
+    style M fill:#fff2cc,stroke:#e6a400,stroke-width:2px
