@@ -70,8 +70,7 @@ Optional: For optimal performance, configure GPU usage or device_map="auto" for 
 ```bash
 streamlit run app.py
 ```
-## 🧪 Application Tabs
-
+## 🧩 Solution Workflow
 ### 📊 Synthetic Data Generation  
 Used to generate synthetic data with a wide range of configuration parameters.
 
@@ -114,6 +113,94 @@ Used to generate synthetic data with a wide range of configuration parameters.
   <img src="img/syntheticdatageneration.png" alt="Synthetic Data Generation Tab" width="80%"/>
 </p>
 
+---
+
+#### 🛠️ Synthetic Data Preparation Logic
+
+1. **Shut-In Events**  
+   - Random shut-in periods are generated based on the configured count.
+
+2. **Pressure Calculation**  
+   - Well Head and Tubing pressures are computed using the initial values and decline rates.
+   - Calculated as: 
+      `Initial Pressure - decline rate * factor`
+
+3. **Flow Rate Simulation**  
+   - Calculated as:  
+     `500 (base flow rate) - (well head pressure decline * 0.2)`  
+   - This models real-world productivity decay.
+
+4. **Temperature Simulation**  
+   - Computed as:  
+     `60 (base temp) + 0.2 * flowrate + random value between 0 to 0.5`
+
+5. **Shut-In Adjustments**  
+   When the well is shut in:
+   - **Rise Factor**:  
+     `1 - exp(- shut-in duration (in hours))`  
+     Used to gradually **increase pressure** over time.
+   - **Flow Decay Factor**:  
+     `exp(-2 * shut-in duration (in hours))`  
+     Used to gradually **decrease flow rate**.
+
+   Applied Modifications:
+   - Well Head Pressure: `+ 150 * rise factor + random(0, 3)`
+   - Tubing Pressure: `+ 100 * rise factor + random(0, 2)`
+   - Flow Rate: `* decay factor + random(0, 2)`
+
+  🔍 Code: [data_simulator/__init__.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py).
+
+#### 🧮 Data Corruption Logic
+
+1. **Missing Value Insertion**  
+   - Drops random records based on a configurable **missing rate** (default: `1%`).
+
+2. **Data Spike Insertion**  
+   - Randomly selects records and applies spikes:  
+     `± (magnitude × standard deviation)`
+
+Corruption is applied per stream (e.g., FlowRate, Pressure, Temperature) to emulate sensor errors.
+
+🔍 Code: [data_corruptor.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/data_corruptor.py)
+
+#### 🧮 Anomaly Injection Logic
+
+To simulate realistic operational disruptions, the pipeline injects both point and continuous anomalies into the synthetic dataset:
+
+1. **Point Anomalies**  
+   - Sudden, short-lived deviations in sensor readings (e.g., pressure spikes or drops).
+
+2. **Continuous Anomalies**  
+   - Gradual or sustained deviations over a time window (e.g., overheating, tubing collapse).
+
+3. **Log Association**  
+   - Some anomalies are paired with synthetic engineer logs to simulate real-world diagnostics.
+   - These logs are later used for semantic summarization in the prediction tab.
+
+##### 🔍 Anomaly Types
+
+| Type             | Description                               | Category     |
+|------------------|-------------------------------------------|--------------|
+| TubingBlockage   | Restriction causing flow drop & TP rise   | Gradual      |
+| ChokeErosion     | Surging flow rate due to orifice wear     | Gradual      |
+| LiquidLoading    | Hydrostatic loading, flow collapse        | Gradual      |
+| TubingCollapse   | Sudden shutdown, TP spike                 | Point        |
+| OverHeating      | Localized temp spikes near ESP            | Point        |
+| SandProduction   | Abrupt pressure/flow noise from solids    | Point        |
+
+🔍 Code: [data_simulator/anomaly_injector.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/anomaly_injector.py)
+
+---
+
+### 🧮 Maintenance Log Embedding & Summarization
+
+As the final step in the synthetic data pipeline, the system embeds and summarizes maintenance logs using a transformer-based language model.
+
+1. **Log Embedding**  
+   - Each engineer log is embedded using a pretrained transformer model (e.g., `sentence-transformers/all-MiniLM-L6-v2`).
+   - Embeddings are used to compute **semantic similarity** between logs and selected anomalies.
+
+🔍 Code: [data_simulator/__init__.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py).
 
 ### 📈 Data Visualization
 
@@ -169,6 +256,57 @@ Model inference configuration allows you to fine-tune preprocessing steps and an
 <p align="center">
   <img src="img/modelinference.png" alt="Model Inference Tab" width="80%"/>
 </p>
+---
+
+### 🧩 Model Inference Workflow
+
+The model inference pipeline is structured into five sequential steps that transform raw sensor data into interpretable anomaly predictions with semantic links to known failure modes.
+
+#### 🧹 Step 1: Preprocessing
+Raw sensor data is first standardized to ensure stability and consistency across downstream models.
+
+- **Imputation**: Handles missing values using `ffill`, `interpolate`, or leaves them as-is.
+- **Denoising**: A rolling median filter is applied to smooth out sharp noise while preserving signal structure. Points that deviate beyond `threshold × MAD (Mean Abs Deviation)` from the local median are replaced, reducing transient spikes.
+- **Scaling**: Normalizes feature ranges for algorithms sensitive to variance to identify anomalies.
+
+🔍 Code: [Data Preparation](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/anomaly_detection/data_preparation.py)
+
+
+#### 📍 Step 2: Point Anomaly Detection
+Detects short-lived, spike-like deviations using fast statistical and ensemble-based methods.
+
+- **Z-score Algorithm**: Flags outliers exceeding a configurable standard deviation threshold.
+- **Isolation Forest**: Detects anomalous data points using data partitioning, influenced by a contamination hyperparameter.
+
+🔍 Code: [Point Modeller](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/anomaly_detection/point_modeller.py)
+
+
+#### 📈 Step 3: Continuous Anomaly Detection
+Identifies prolonged deviations using an LSTM-based autoencoder.
+
+- Trained on normal sequences to learn reconstruction patterns.
+- Sequences with high reconstruction error are labeled as anomalous.
+- Highly configurable: window size, epochs, early stopping, and batch size.
+
+🔍 Code: [Continuous Modeller](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/anomaly_detection/continuous_modeller.py)
+
+
+#### 🧬 Step 4: Embedding Anomaly Snapshots
+Transforms both predicted anomalies and labeled (ground-truth) anomalies into dense vector embeddings using a transformer model.
+
+- Embeddings capture temporal patterns and semantic behavior of anomalies.
+- Enables contextual comparison between predicted vs. known signatures.
+
+🔍 Code: [Embeds](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/anomaly_detection/embed.py)
+
+
+#### 🧠 Step 5: Nearest Neighbor Matching
+Links predictions to likely root causes by comparing embeddings.
+
+- Uses **cosine similarity** to find the closest labeled anomaly for every predicted anomaly.
+- Facilitates interpretability by surfacing the most semantically aligned known failure mode.
+
+🔍 Code: [Embeds](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/anomaly_detection/embed.py)
 
 ### 📋 Summarize Predictions 
 
@@ -185,20 +323,22 @@ Explore model predictions overlaid on sensor data in a time series view.
   <img src="img/summarizer-1.png" alt="Model Summarizer Tab 1" width="80%"/>
 </p>
 
----
+#### 🧠 Summarization Logic (LLM-Powered)
 
-## 🔍 Anomaly Types
+The final step in the workflow generates human-readable summaries of selected anomaly windows using a transformer-based language model.
 
-| Type             | Description                               | Category     |
-|------------------|-------------------------------------------|--------------|
-| TubingBlockage   | Restriction causing flow drop & TP rise   | Gradual      |
-| ChokeErosion     | Surging flow rate due to orifice wear     | Gradual      |
-| LiquidLoading    | Hydrostatic loading, flow collapse        | Gradual      |
-| TubingCollapse   | Sudden shutdown, TP spike                 | Point        |
-| OverHeating      | Localized temp spikes near ESP            | Point        |
-| SandProduction   | Abrupt pressure/flow noise from solids    | Point        |
+1. **Input Preparation**  
+   - Extracts and flattens relevant fields: `SimilarAnomalyTypes`, `SimilarMaintenanceNotes`, and `SimilarObservations`.
+   - Deduplicates and formats them into a structured prompt.
 
-All are injected with optional operator maintenance notes and observations generated from domain-aware templates.
+2. **Prompt Engineering**  
+   - Constructs a prompt that guides the model to produce a one-line summary and a short explanation.
+
+3. **Summarization**  
+   - Uses `google/flan-t5-small` via Hugging Face’s `pipeline("summarization")` to generate concise, context-aware summaries.
+
+🔍 Code: [`summarize_predictions()`](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py)
+
 
 ---
 
