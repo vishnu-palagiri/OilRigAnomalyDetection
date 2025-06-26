@@ -77,7 +77,7 @@ def plot_with_anomalies(selected_anomalies, anomaly_colors):
 
     return fig
 
-def get_model_summarizing_plot():
+def get_model_summarizing_plot(anomaly_colors):
     """
     Generate interactive plot of detected anomalies and return associated DataFrame.
 
@@ -111,6 +111,31 @@ def get_model_summarizing_plot():
                              mode='lines', name='Tubing Pressure',
                              line=dict(color='rgba(0,80,200,0.7)', width=2),
                              yaxis='y2', connectgaps=True))
+
+    # --- Highlight Anomaly Periods ---
+    for anomaly in anomaly_colors.keys():
+        mask = df['AnomalyType'] == anomaly
+        if mask.any():
+            anomaly_ranges = []
+            is_anomaly = False
+
+            for i in range(len(df)):
+                if not is_anomaly and mask.iloc[i]:
+                    is_anomaly = True
+                    start = df.index[i]
+                elif is_anomaly and not mask.iloc[i]:
+                    is_anomaly = False
+                    end = df.index[i]
+                    anomaly_ranges.append((start, end))
+            if is_anomaly:
+                anomaly_ranges.append((start, df.index[-1]))
+
+            for start, end in anomaly_ranges:
+                fig.add_vrect(
+                    x0=start, x1=end,
+                    fillcolor=anomaly_colors.get(anomaly, 'lightgrey'),
+                    opacity=0.3, layer='below', line_width=0,
+                )
 
     # Point anomalies → "x" marker
     point_anom = df[df['PointAnomaly'] == 1]

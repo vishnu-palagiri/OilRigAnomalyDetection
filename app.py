@@ -153,7 +153,7 @@ with visualization_tab:
 with model_inference:
     st.markdown("### Model Inference Configuration")
     # === Column Strategies ===
-    st.markdown("#### ⚙️ Column Pre Processing Strategies")
+    st.markdown("#### Column Pre Processing Strategies")
 
     strategy_cols = list(column_strategies.keys())
     rows = [strategy_cols[i:i+3] for i in range(0, len(strategy_cols), 3)]
