@@ -24,7 +24,7 @@ def plot_with_anomalies(selected_anomalies, anomaly_colors):
 
     fig.add_trace(go.Scatter(x=df.index, y=df['WellHeadTemperature'],
                              mode='lines', name='WellHead Temp',
-                             line=dict(color='rgba(255,215,0,0.9)', width=2),
+                             line=dict(color='rgba(34, 139, 34, 0.9)', width=2),
                              yaxis='y1', connectgaps=True))
 
     # --- Secondary Y-Axis ---
@@ -98,7 +98,7 @@ def get_model_summarizing_plot(anomaly_colors):
 
     fig.add_trace(go.Scatter(x=df.index, y=df['WellHeadTemperature'],
                              mode='lines', name='WellHead Temp',
-                             line=dict(color='rgba(255,215,0,0.9)', width=2),
+                             line=dict(color='rgba(34, 139, 34, 0.9)', width=2),
                              yaxis='y1', connectgaps=True))
 
     # --- Secondary Y-Axis ---

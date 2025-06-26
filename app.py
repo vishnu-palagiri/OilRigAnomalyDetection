@@ -42,14 +42,14 @@ column_strategies = {
 
 anomaly_colors = {
     'TubingBlockage': '#FF6384',      
-    'ChokeErosion': '#FFCE56',        
+    'ChokeErosion': '#E6B800',        
     'LiquidLoading': '#36A2EB',       
     'TubingCollapse': '#4BC0C0',      
     'OverHeating': '#FF9F40',         
     'SandProduction': '#9966FF'
 }
 
-st.set_page_config(page_title="ML App", layout="wide")
+st.set_page_config(page_title="Rig Anomaly Detection", layout="wide")
 st.subheader("Anomaly Detection in Oil Rig Operations")
 
 # Tabs as "Navbar"
@@ -264,7 +264,7 @@ with summary_tab:
     selected = plotly_events(fig, select_event=True)
 
     # Table view
-    st.markdown("### 📄 Selected Data Points")
+    st.markdown("### Selected Data Points")
     filtered_df = df.loc[[pt['x'] for pt in selected]] if selected else df.iloc[0:0]
     st.dataframe(filtered_df[['FlowRate', 'WellHeadPressure', 'TubingPressure', 'WellHeadTemperature']])
 

@@ -70,12 +70,120 @@ Optional: For optimal performance, configure GPU usage or device_map="auto" for 
 ```bash
 streamlit run app.py
 ```
+## 🧪 Application Tabs
 
-Tabs available:
-- **📊 Synthetic Data Generation**
-- **📈 Data Visualization**
-- **🧠 Model Inference**
-- **📋 Summarize Predictions**
+### 📊 Synthetic Data Generation  
+Used to generate synthetic data with a wide range of configuration parameters.
+
+<details>
+<summary>⚙️ <strong>Base Parameters</strong></summary>
+
+| Parameter                   | Description                                         |
+|----------------------------|-----------------------------------------------------|
+| Period of Data             | Number of months of data to be generated            |
+| Shut In Periods            | Total number of shut-in periods for the well        |
+| Initial Well Head Pressure | The initial pressure at the well head               |
+| Initial Tubing Pressure    | The initial pressure at the tubing                  |
+| Pressure Decline Rate      | Rate at which pressure declines at the well head    |
+
+</details>
+
+<details>
+<summary>🧪 <strong>Data Quality Config Parameters</strong></summary>
+
+| Parameter | Description                                                                 |
+|-----------|-----------------------------------------------------------------------------|
+| Count     | Number of erroneous behaviors in the selected stream                       |
+| Magnitude | Magnitude of erroneous behaviors (in standard deviations)                  |
+
+</details>
+
+<details>
+<summary>🚨 <strong>Anomaly Injection Config Parameters</strong></summary>
+
+| Parameter                  | Description                                                         |
+|---------------------------|---------------------------------------------------------------------|
+| Count of Logged Events    | Total number of anomaly events with associated engineer logs        |
+| Count of Non Logged Events| Total number of anomaly events without associated engineer logs     |
+| Min Duration              | Minimum duration of an anomaly event                                |
+| Max Duration              | Maximum duration of an anomaly event                                |
+
+</details>
+
+<p align="center">
+  <img src="img/syntheticdatageneration.png" alt="Synthetic Data Generation Tab" width="600"/>
+</p>
+
+
+### 📈 Data Visualization
+
+Visualize the **synthetic time series data** to observe trends, identify signal behaviors, and analyze induced anomalies across the simulation period.
+
+Each anomaly type comes with its own toggle, allowing fine-grained control over the visualization:
+
+- ✅ **Anomaly Toggles**: Enable or disable background highlights (rectangular overlays) for each anomaly type individually.
+- 🕒 **Time Axis Exploration**: Inspect how different sensor signals change over the data generation window.
+- 🎯 **Anomaly Context**: Highlighted periods correspond to time spans where anomalies were synthetically injected, aiding correlation and interpretability.
+
+<p align="center">
+  <img src="img/datavisualizer.png" alt="Data Visualization Tab" width="600"/>
+</p>
+
+### 🧠 Model Inference
+Model inference configuration allows you to fine-tune preprocessing steps and anomaly detection behavior for both point-wise and continuous anomaly detection models.
+
+<details>
+<summary>🧹 <strong>Column Pre-processing Strategies</strong></summary>
+
+| Parameter | Description                                                                 |
+|-----------|-----------------------------------------------------------------------------|
+| Impute    | Imputation method – options include `ffill`, `interpolate`, or `none`      |
+| Denoise   | Whether to apply noise filtering to the selected attribute                 |
+| Scale     | Whether to scale the selected attribute before inference                   |
+
+</details>
+
+<details>
+<summary>📍 <strong>Point Anomaly Detection</strong></summary>
+
+| Parameter                | Description                                                                 |
+|-------------------------|-----------------------------------------------------------------------------|
+| zscore                  | Enable/disable z-score anomaly detection                                     |
+| isoforest               | Enable/disable Isolation Forest algorithm                                    |
+| zscore threshold        | Z-score threshold for anomaly flagging (in standard deviations)              |
+| IsoFor Contamination %  | Contamination parameter for Isolation Forest (i.e., expected anomaly fraction) |
+
+</details>
+
+<details>
+<summary>📈 <strong>Continuous Anomaly Detection</strong></summary>
+
+| Parameter                 | Description                                                              |
+|--------------------------|--------------------------------------------------------------------------|
+| window size (days)       | Size of the rolling window for LSTM AutoEncoder                          |
+| epochs                   | Number of training epochs to run                                         |
+| early stopping patience  | Number of epochs to wait without improvement before stopping training    |
+
+</details>
+
+<p align="center">
+  <img src="img/modelinference.png" alt="Model Inference Tab" width="600"/>
+</p>
+
+### 📋 Summarize Predictions 
+
+Explore model predictions overlaid on sensor data in a time series view.
+
+- 🖍️ **Lasso Selection**: Use lasso select to highlight regions of interest within the time series.
+- 📄 **Dynamic Data Table**: Once a region is selected, a table populates with the corresponding anomalies detected in that window.
+- 🧠 **Summarization Trigger**: Click **Summarize** to initiate a summary generation using the `google/flan-t5-small` language model.
+- 🔎 **Semantic Log Extraction**: Relevant logs are semantically ranked based on anomaly context and summarized accordingly.
+- 📌 **Summary Output**: Generated summaries are displayed at the bottom of the tab for easy review and analysis.
+
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="img/summarizer.png" alt="Model Summarizer Tab" width="47%"/>
+  <img src="img/summarizer-1.png" alt="Model Summarizer Tab 1" width="47%"/>
+</div>
 
 ---
 
