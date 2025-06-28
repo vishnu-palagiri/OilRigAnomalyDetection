@@ -30,22 +30,25 @@
 2. **Single Well Simulation Only**  
    - Doesn’t capture the variability or volume of multi-well operations
 
-3. **Static Thresholding**  
+3. **Natually Flowing Wells Only**
+   - Doesn't capture the behaviors of a Artifically (Plunger / Gas) Lifted wells
+
+4. **Static Thresholding**  
    - Manual anomaly thresholds can struggle with dynamic signal ranges
 
-4. **Limited Log Granularity**  
+5. **Limited Log Granularity**  
    - Only 1 log per anomaly: misses time-evolving observations from field ops
 
-5. **LLM Scale Limitations**  
+6. **LLM Scale Limitations**  
    - `flan-t5-small` may not generalize to complex logs or richer inputs
 
-6. **Synthetic–Real Gap**  
+7. **Synthetic–Real Gap**  
    - Simulated data may not replicate all edge cases and variability of actual oilfield telemetry
 
-7. **Detection Without Classification**  
+8. **Detection Without Classification**  
    - Model detects anomalies but doesn’t label them for evaluation or downstream usage
    
-8. **Limited Attribute Diversity**  
+9. **Limited Attribute Diversity**  
     - The current dataset is focused on a small set of pressure and flow metrics. Missing attributes like **Casing Pressure**, **Oil/Gas/Water Rate**, **Choke Size**, **Downhole Pressure**, and **Well State** (e.g., Natural Flow, Gas Lift, Plunger Lift) limits the realism and complexity of detected behavior patterns.
 
 ---
