@@ -33,7 +33,6 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
   - [Summarize Predictions](#-summarize-predictions)
     - [Summarization Logic](#-summarization-logic-llm-powered)
 - [LLM Example](#-llm-summarization-example)
-- [DOCKER Deployment](#docker-deployment)
 - [License](#-license)
 ---
 
@@ -433,12 +432,6 @@ Uses `llama3.1` to generate concise insights like:
 
 Prompt templates include anomaly types, observation phrases, and maintenance notes matched via cosine similarity.
 
----
-## DOCKER Deployment
-
-A DOCKER File has been created in the repo to enable seamless deployment of the streamlit app across different cloud platforms
-
-🔍 DOCKER: [`Dockerfile`](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/Dockerfile)
 ---
 
 ## 📋 License
