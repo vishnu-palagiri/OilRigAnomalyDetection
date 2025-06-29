@@ -4,7 +4,7 @@ from data_simulator.data_corruptor import *
 from data_simulator.anomaly_injector import *
 from data_simulator.generate_logs import *
 
-from sentence_transformers import SentenceTransformer
+# from sentence_transformers import SentenceTransformer
 import pandas as pd
 
 # Set reproducible seed
@@ -45,19 +45,19 @@ def run_data_generation(spike_config, config, anomaly_config):
     )
 
     # --- Step 4: Embed maintenance text using a transformer model ---
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    # model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    notes_embeddings = model.encode(
-        logs_df["MaintenanceNotes"].tolist(),
-        convert_to_numpy=True
-    )
-    logs_df["MaintenanceNotesEmbedding"] = [vec for vec in notes_embeddings]
+    # notes_embeddings = model.encode(
+    #     logs_df["MaintenanceNotes"].tolist(),
+    #     convert_to_numpy=True
+    # )
+    # logs_df["MaintenanceNotesEmbedding"] = [vec for vec in notes_embeddings]
 
-    obs_embeddings = model.encode(
-        logs_df["Observations"].tolist(),
-        convert_to_numpy=True
-    )
-    logs_df["ObservationsEmbedding"] = [vec for vec in obs_embeddings]
+    # obs_embeddings = model.encode(
+    #     logs_df["Observations"].tolist(),
+    #     convert_to_numpy=True
+    # )
+    # logs_df["ObservationsEmbedding"] = [vec for vec in obs_embeddings]
 
     # --- Step 5: Save outputs ---
     df_with_anomalies.to_csv("data_simulator/SimulatedWellData.csv", index_label="Timestamp")

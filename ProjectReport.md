@@ -18,7 +18,7 @@
 3. **Lightweight & Deployable Modeling Stack**  
    - **LSTM Autoencoder** (3 layers, 64 units) for sequence anomaly detection  
    - **Isolation Forest & Z-score** for statistical outlier detection  
-   - **`flan-t5-small`** for summarization: low-latency and easy to deploy
+   - **`llama3.1`** for summarization: locally hosted and run for lower-latency, costs and data privacy needs
 
 ---
 
@@ -39,18 +39,17 @@
 5. **Limited Log Granularity**  
    - Only 1 log per anomaly: misses time-evolving observations from field ops
 
-6. **LLM Scale Limitations**  
-   - `flan-t5-small` may not generalize to complex logs or richer inputs
-
-7. **Synthetic–Real Gap**  
+6. **Synthetic–Real Gap**  
    - Simulated data may not replicate all edge cases and variability of actual oilfield telemetry
 
-8. **Detection Without Classification**  
+7. **Detection Without Classification**  
    - Model detects anomalies but doesn’t label them for evaluation or downstream usage
    
-9. **Limited Attribute Diversity**  
+8. **Limited Attribute Diversity**  
     - The current dataset is focused on a small set of pressure and flow metrics. Missing attributes like **Casing Pressure**, **Oil/Gas/Water Rate**, **Choke Size**, **Downhole Pressure**, and **Well State** (e.g., Natural Flow, Gas Lift, Plunger Lift) limits the realism and complexity of detected behavior patterns.
 
+9. **Quantized Language Models**  
+   - Utilized locally deployed `llama3.1` quantized model for current prediction. This could reduce summarization accuracy compared to the origial models
 ---
 
 ## ⚠️ Known Failure Points
@@ -58,7 +57,7 @@
 1. **Scalability Concerns**  
    - Single model may not generalize across multiple wells or large-scale streaming data
 
-2. **Modal Conflicts**  
+2. **Model Conflicts**  
    - Simultaneous multi-sensor anomalies may confuse embedding matching
 
 3. **Summarization Drift**  
@@ -81,7 +80,7 @@
    - Use LLM-labeled anomalies to compute accuracy, precision, recall
 
 3. **Model Upgrades**  
-   - Swap in larger models like `flan-t5-large`, `mistral`, or `mixtral` for deeper summarization
+   - Swap in quantized models with non-quantized models for deeper & more accurate summarization
 
 4. **Fusion-Based Prediction**  
    - Combine logs and sensor inputs at inference instead of post-processing

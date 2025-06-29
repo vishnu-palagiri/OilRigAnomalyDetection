@@ -10,7 +10,11 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
 - [Features](#-features)
 - [Folder Structure](#-folder-structure)
 - [Setup](#-setup-instructions)
+  - [Code Setup](#code-setup)
+  - [Ollama Setup (Llama3.1 for Local LLM)](#-ollama-setup-llama31-for-local-llm)
 - [Running the App](#-running-the-app)
+  - [Without Docker](#without-docker)
+  - [With Docker](#with-docker)
 - [Solution Workflow](#-solution-workflow)
   - [Synthetic Data Generation](#-synthetic-data-generation)
     - [Data Preparation Logic](#️-synthetic-data-preparation-logic)
@@ -29,6 +33,7 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
   - [Summarize Predictions](#-summarize-predictions)
     - [Summarization Logic](#-summarization-logic-llm-powered)
 - [LLM Example](#-llm-summarization-example)
+- [DOCKER Deployment](#docker-deployment)
 - [License](#-license)
 ---
 
@@ -48,7 +53,7 @@ Adds missing values, random noise spikes, and six types of engineered anomalies 
 Matches detected anomalies against embedded engineer maintenance logs using **cosine similarity**.
 
 - 📜 **LLM-Based Anomaly Summarization**  
-Text summaries of anomalous episodes using Google's `flan-t5-small` model with dynamically constructed prompts.
+Text summaries of anomalous episodes using `llama3.1` quantized model using ollama with dynamically constructed prompts.
 
 - 📊 **Visual Analytics Dashboard (Streamlit)**  
 Multi-tabbed layout for simulation, visualization, inference, and summary reporting.
@@ -73,7 +78,7 @@ Multi-tabbed layout for simulation, visualization, inference, and summary report
 |  |- continuous_modeller.py     # LSTM Autoencoder model and trainer
 |  |- embed.py                   # Embedding extractor & cosine similarity matcher
 |- summarizer/
-|  |- __init__.py                # LLM-based summarizer using Google's flan-t5-small
+|  |- __init__.py                # LLM-based summarizer using ollama quantized llama3.1 model
 |- requirements.txt              # Python dependencies
 ```
 
@@ -81,6 +86,7 @@ Multi-tabbed layout for simulation, visualization, inference, and summary report
 
 ## 🧰 Setup Instructions
 
+### Code setup
 ```bash
 # Clone the repository
 git clone https://github.com/vishnu-palagiri/OilRigAnomalyDetection
@@ -89,14 +95,58 @@ git clone https://github.com/vishnu-palagiri/OilRigAnomalyDetection
 pip install -r requirements.txt
 ```
 
-Optional: For optimal performance, configure GPU usage or device_map="auto" for large models in the summarizer.
+### 🔧 Ollama Setup (Llama3.1 for Local LLM)
+
+#### 1. Install Ollama
+
+Download and install Ollama from the official website: [Download ollama](https://ollama.com/download)
+
+#### 2. Pull the Llama3.1 Model
+
+In your terminal, run:
+
+```bash
+ollama run llama3.1
+```
+
 
 ---
 
 ## 🧪 Running the App
 
+### Without Docker
+
+Before running the app, start the local model server:
+```bash
+ollama serve
+```
+
+This will launch Ollama's REST API at http://localhost:11434, which the streamlit app can access to generate responses from the Llama3.1 model.
+
+Run the streamlit app in terminal
 ```bash
 streamlit run app.py
+```
+
+This will lauch the streamlit app at http://localhost:8501
+
+### With Docker
+
+Build the container image (Only first time)
+```bash
+docker-compose --build
+```
+
+Run the containers
+```bash
+docker-compose up ollama-server
+docker-compose up streamlit-app
+```
+This will lauch the streamlit app at http://localhost:8501 & ollama model at http://localhost:11434
+
+Stop all containers
+```bash
+docker-compose down
 ```
 
 ## 🧩 Solution Workflow
@@ -347,7 +397,7 @@ Explore model predictions overlaid on sensor data in a time series view.
 
 - 🖍️ **Lasso Selection**: Use lasso select to highlight regions of interest within the time series.
 - 📄 **Dynamic Data Table**: Once a region is selected, a table populates with the corresponding anomalies detected in that window.
-- 🧠 **Summarization Trigger**: Click **Summarize** to initiate a summary generation using the `google/flan-t5-small` language model.
+- 🧠 **Summarization Trigger**: Click **Summarize** to initiate a summary generation using the `llama3.1` language model.
 - 🔎 **Semantic Log Extraction**: Relevant logs are semantically ranked based on anomaly context and summarized accordingly.
 - 📌 **Summary Output**: Generated summaries are displayed at the bottom of the tab for easy review and analysis.
 
@@ -368,7 +418,7 @@ The final step in the workflow generates human-readable summaries of selected an
   - Constructs a prompt that guides the model to produce a one-line summary and a short explanation.
 
 3. **Summarization**  
-  - Uses `google/flan-t5-small` via Hugging Face’s `pipeline("summarization")` to generate concise, context-aware summaries.
+  - Uses `llama3.1` quantized via ollama `(which runs locally)` to generate concise, context-aware summaries.
 
 🔍 Code: [`summarize_predictions()`](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py)
 
@@ -377,12 +427,18 @@ The final step in the workflow generates human-readable summaries of selected an
 
 ## 🧠 LLM Summarization Example
 
-Uses `google/flan-t5-small` to generate concise insights like:
+Uses `llama3.1` to generate concise insights like:
 
 > “Flow rate dropped gradually with rising tubing pressure. Signs suggest a tubing blockage potentially due to wax deposition.”
 
 Prompt templates include anomaly types, observation phrases, and maintenance notes matched via cosine similarity.
 
+---
+## DOCKER Deployment
+
+A DOCKER File has been created in the repo to enable seamless deployment of the streamlit app across different cloud platforms
+
+🔍 DOCKER: [`Dockerfile`](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/Dockerfile)
 ---
 
 ## 📋 License

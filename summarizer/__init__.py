@@ -1,21 +1,10 @@
-from transformers import AutoTokenizer, pipeline, AutoModelForCausalLM, AutoModelForSeq2SeqLM
 from ast import literal_eval
 from itertools import chain
+import requests
+import os
 
-model_id = "google/flan-t5-small"
-
-# Load tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForSeq2SeqLM.from_pretrained(
-    model_id,
-    device_map="auto",
-    offload_folder=f"summarizer/offload/{model_id}"
-)
-
-# Text generation pipeline
-# generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
-generator = pipeline("summarization", model=model, tokenizer=tokenizer)
-
+OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://localhost:11434") + "/api/generate"
+MODEL_NAME = "llama3.1"
 
 def summarize_predictions(df):
     """
@@ -39,32 +28,51 @@ def summarize_predictions(df):
         df['SimilarObservations'].dropna().apply(literal_eval)
     )))
 
-    # Prompt engineering
+    if types == '\n- ':
+        types = "No Anomalies Identified"
+        observations = "No Anomalies Identified"
+        notes = "No Anomalies Identified"
+
     prompt = f"""
-    Summarize the anomaly using the following information about similar events.
+    You are an experienced Oil & Gas production engineer analyzing well anomalies. Based on historical data from similar anomalous events, provide actionable insights for the current anomaly.
 
-    You would need to go through the anomaly types and the details to provide a summary of the current selected period's anomaly type.
+    TASK:
+    Analyze the provided historical anomaly data and generate:
+    1. ONE-LINE SUMMARY: A concise description of the anomaly type
+    2. SHORT EXPLANATION: Key characteristics, likely causes, and recommended actions (2-3 sentences)
 
+    INSTRUCTIONS:
+    - Use technical language appropriate for field operations
+    - Focus on actionable insights for maintenance teams
+    - If no similar anomalies are provided or data is insufficient, state: "No comparable historical anomalies identified - recommend manual inspection to verify if this represents a true anomaly or potential misclassification"
+
+    HISTORICAL DATA:
     Similar Anomaly Types: {types}
-
-    Similar Observations: {observations}
-
+    Similar Observations: {observations}  
     Similar Maintenance Notes: {notes}
 
-    Return a one-line summary and a short explanation.
+    RESPONSE FORMAT:
+    **One-line Summary:** [Your summary here]
+    **Explanation:** [Your 2-3 sentence explanation here]
+
+    TONE: Confident, concise, and written as a hands-on production engineer.
     """
 
     print(prompt)
 
-    # Generate response
-    response = generator(
-        prompt,
-        max_length=min(len(prompt), 60),
-        min_length=20,
-        do_sample=False,
-        temperature=0.3
-    )
+    # Create payload
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": prompt,
+        "stream": False,  # TODO - Set this to True for streaming Q&A by engineers
+        "temperature": 0.1,
+    }
 
-    print(response)
+    response = requests.post(OLLAMA_URL, json=payload)
 
-    return response[0][list(response[0].keys())[0]]
+    print(response.json())
+
+    try:
+        return response.json()['response']
+    except Exception as e:
+        return f"Errored out due to : {e}"

@@ -1,0 +1,68 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "ps aux | grep -v grep | grep ollama || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  streamlit-app:
+    build: .
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app  # Mount your code for development (remove in production)
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # Model initializer - runs once to pull the model if not exists
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: |
+      sh -c "
+        echo 'Checking if llama3.1 model exists...'
+        if ! ollama list | grep -q 'llama3.1'; then
+          echo 'Model not found. Pulling llama3.1...'
+          ollama pull llama3.1
+          echo 'Model pulled successfully!'
+        else
+          echo 'Model llama3.1 already exists. Skipping download.'
+        fi
+      "
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: "no"  # Run only once
+
+
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  default:
+    name: streamlit-ollama-network
