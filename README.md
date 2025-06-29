@@ -89,9 +89,6 @@ Multi-tabbed layout for simulation, visualization, inference, and summary report
 ```bash
 # Clone the repository
 git clone https://github.com/vishnu-palagiri/OilRigAnomalyDetection
-
-# Install required packages
-pip install -r requirements.txt
 ```
 
 ### 🔧 Ollama Setup (Llama3.1 for Local LLM)
@@ -100,30 +97,26 @@ pip install -r requirements.txt
 
 Download and install Ollama from the official website: [Download ollama](https://ollama.com/download)
 
-#### 2. Pull the Llama3.1 Model
-
-In your terminal, run:
-
-```bash
-ollama run llama3.1
-```
-
-
 ---
 
 ## 🧪 Running the App
 
 ### Without Docker
 
-Before running the app, start the local model server:
+Before running the app, pull llama3.1 model & start the local model server:
 ```bash
+ollama run llama3.1
+
 ollama serve
 ```
 
 This will launch Ollama's REST API at http://localhost:11434, which the streamlit app can access to generate responses from the Llama3.1 model.
 
-Run the streamlit app in terminal
+Install required packages and run the streamlit app in terminal
 ```bash
+# Install required packages
+pip install -r requirements.txt
+
 streamlit run app.py
 ```
 
