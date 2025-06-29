@@ -99,9 +99,12 @@ def apply_preprocessing(df, strategy_dict, threshold=3.5):
 
         # Scaling
         if strat.get('scale', False) and pd.api.types.is_numeric_dtype(series):
-            series, scaler = scale_column(series)
+            scaled_series, scaler = scale_column(series)
             scalers[col] = scaler
+        else:
+            scaled_series = series
 
-        df_out[col] = series
+        df_out[col] = scaled_series
+        df[col] = series
 
-    return df_out, scalers
+    return df_out, df, scalers

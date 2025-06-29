@@ -39,7 +39,7 @@ def run_model_inference(column_strategies, point_config, cont_config):
     engineer_logs_df = load_log_data('data_simulator/EngineerLogs.csv')
 
     print('Applying pre-processing')
-    scaled_df, scaler = apply_preprocessing(sensor_df, column_strategies, threshold=3.5)
+    scaled_df, unscaled_df, scaler = apply_preprocessing(sensor_df, column_strategies, threshold=3.5)
 
     print('Anomaly Detection')
     ops, scaled_df['PointAnomaly'] = run_point_anomaly_detectors(
@@ -98,7 +98,7 @@ def run_model_inference(column_strategies, point_config, cont_config):
         ['PointAnomaly', 'AnomalyDist', 'GradualAnomaly', 'AnomalyEmbedding',
          'SimilarMaintenanceNotes', 'SimilarObservations',
          'SimilarAnomalyTypes', 'SimilarityScores']
-    ].join(sensor_df)
+    ].join(unscaled_df)
 
     non_scaled_df.to_csv('anomaly_detection/DetectedAnomalies.csv', index_label='Timestamp')
     print('Data saved back successfully')
