@@ -100,7 +100,7 @@ with data_generation:
             spike_config[key] = {'count': count, 'magnitude': mag}
 
 
-    st.subheader("Unlabelled Anomaly Injection Configuration")
+    st.subheader("Anomaly Injection Configuration")
 
     anomaly_keys = list(default_anomaly_config.keys())
     anomaly_cols = st.columns(3)
