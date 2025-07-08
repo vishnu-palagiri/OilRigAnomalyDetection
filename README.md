@@ -101,6 +101,12 @@ Download and install Ollama from the official website: [Download ollama](https:/
 
 ## 🧪 Running the App
 
+### Preview the App
+
+The app is deployed at [🚀OilRigAnomalyDetection](https://oilriganomalydetection.streamlit.app/). You can preview the app here. 
+
+_Note: Everything except the summarization of anomalies would work in this depoloyment, since Ollama model won't be run at Streamlit's server_
+
 ### Without Docker
 
 Before running the app, pull llama3.1 model & start the local model server:
