@@ -196,46 +196,46 @@ Used to generate synthetic data with a wide range of configuration parameters.
 #### 🛠️ Synthetic Data Preparation Logic
 
 1. **Shut-In Events**  
-  - Random shut-in periods are generated based on the configured count.
+    - Random shut-in periods are generated based on the configured count.
 
 2. **Pressure Calculation**  
-  - Well Head and Tubing pressures are computed using the initial values and decline rates.
-  - Calculated as: 
-    `Initial Pressure - decline rate * factor`
+    - Well Head and Tubing pressures are computed using the initial values and decline rates.
+    - Calculated as: 
+      `Initial Pressure - decline rate * factor`
 
 3. **Flow Rate Simulation**  
-  - Calculated as:  
-    `500 (base flow rate) - (well head pressure decline * 0.2)`  
-  - This models real-world productivity decay.
+    - Calculated as:  
+      `500 (base flow rate) - (well head pressure decline * 0.2)`  
+    - This models real-world productivity decay.
 
 4. **Temperature Simulation**  
-  - Computed as:  
-    `60 (base temp) + 0.2 * flowrate + random value between 0 to 0.5`
+    - Computed as:  
+      `60 (base temp) + 0.2 * flowrate + random value between 0 to 0.5`
 
 5. **Shut-In Adjustments**  
   When the well is shut in:
-  - **Rise Factor**:  
-    `1 - exp(- shut-in duration (in hours))`  
-    Used to gradually **increase pressure** over time.
-  - **Flow Decay Factor**:  
-    `exp(-2 * shut-in duration (in hours))`  
-    Used to gradually **decrease flow rate**.
+    - **Rise Factor**:  
+      `1 - exp(- shut-in duration (in hours))`  
+      Used to gradually **increase pressure** over time.
+    - **Flow Decay Factor**:  
+      `exp(-2 * shut-in duration (in hours))`  
+      Used to gradually **decrease flow rate**.
 
-  Applied Modifications:
-  - Well Head Pressure: `+ 150 * rise factor + random(0, 3)`
-  - Tubing Pressure: `+ 100 * rise factor + random(0, 2)`
-  - Flow Rate: `* decay factor + random(0, 2)`
+    Applied Modifications:
+    - Well Head Pressure: `+ 150 * rise factor + random(0, 3)`
+    - Tubing Pressure: `+ 100 * rise factor + random(0, 2)`
+    - Flow Rate: `* decay factor + random(0, 2)`
 
 🔍 Code: [data_simulator/__init__.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py).
 
 #### 🧮 Data Corruption Logic
 
 1. **Missing Value Insertion**  
-  - Drops random records based on a configurable **missing rate** (default: `1%`).
+    - Drops random records based on a configurable **missing rate** (default: `1%`).
 
 2. **Data Spike Insertion**  
-  - Randomly selects records and applies spikes:  
-    `± (magnitude × standard deviation)`
+    - Randomly selects records and applies spikes:  
+      `± (magnitude × standard deviation)`
 
 Corruption is applied per stream (e.g., FlowRate, Pressure, Temperature) to emulate sensor errors.
 
@@ -246,14 +246,14 @@ Corruption is applied per stream (e.g., FlowRate, Pressure, Temperature) to emul
 To simulate realistic operational disruptions, the pipeline injects both point and continuous anomalies into the synthetic dataset:
 
 1. **Point Anomalies**  
-  - Sudden, short-lived deviations in sensor readings (e.g., pressure spikes or drops).
+    - Sudden, short-lived deviations in sensor readings (e.g., pressure spikes or drops).
 
 2. **Continuous Anomalies**  
-  - Gradual or sustained deviations over a time window (e.g., overheating, tubing collapse).
+    - Gradual or sustained deviations over a time window (e.g., overheating, tubing collapse).
 
 3. **Log Association**  
-  - Some anomalies are paired with synthetic engineer logs to simulate real-world diagnostics.
-  - These logs are later used for semantic summarization in the prediction tab.
+    - Some anomalies are paired with synthetic engineer logs to simulate real-world diagnostics.
+    - These logs are later used for semantic summarization in the prediction tab.
 
 ##### 🔍 Anomaly Types
 
@@ -273,8 +273,8 @@ To simulate realistic operational disruptions, the pipeline injects both point a
 As the final step in the synthetic data pipeline, the system embeds and summarizes maintenance logs using a transformer-based language model.
 
 1. **Log Embedding**  
-  - Each engineer log is embedded using a pretrained transformer model (e.g., `sentence-transformers/all-MiniLM-L6-v2`).
-  - Embeddings are used to compute **semantic similarity** between logs and selected anomalies.
+    - Each engineer log is embedded using a pretrained transformer model (e.g., `sentence-transformers/all-MiniLM-L6-v2`).
+    - Embeddings are used to compute **semantic similarity** between logs and selected anomalies.
 
 🔍 Code: [data_simulator/__init__.py](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py).
 
@@ -410,14 +410,14 @@ Explore model predictions overlaid on sensor data in a time series view.
 The final step in the workflow generates human-readable summaries of selected anomaly windows using a transformer-based language model.
 
 1. **Input Preparation**  
-  - Extracts and flattens relevant fields: `SimilarAnomalyTypes`, `SimilarMaintenanceNotes`, and `SimilarObservations`.
-  - Deduplicates and formats them into a structured prompt.
+    - Extracts and flattens relevant fields: `SimilarAnomalyTypes`, `SimilarMaintenanceNotes`, and `SimilarObservations`.
+    - Deduplicates and formats them into a structured prompt.
 
 2. **Prompt Engineering**  
-  - Constructs a prompt that guides the model to produce a one-line summary and a short explanation.
+    - Constructs a prompt that guides the model to produce a one-line summary and a short explanation.
 
 3. **Summarization**  
-  - Uses `llama3.1` quantized via ollama `(which runs locally)` to generate concise, context-aware summaries.
+    - Uses `llama3.1` quantized via ollama `(which runs locally)` to generate concise, context-aware summaries.
 
 🔍 Code: [`summarize_predictions()`](https://github.com/vishnu-palagiri/OilRigAnomalyDetection/blob/main/data_simulator/__init__.py)
 
