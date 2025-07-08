@@ -13,6 +13,7 @@ This project offers a full-stack simulation and anomaly detection suite for oil 
   - [Code Setup](#code-setup)
   - [Ollama Setup (Llama3.1 for Local LLM)](#-ollama-setup-llama31-for-local-llm)
 - [Running the App](#-running-the-app)
+  - [Preview the App](#preview-the-app)
   - [Without Docker](#without-docker)
   - [With Docker](#with-docker)
 - [Solution Workflow](#-solution-workflow)
